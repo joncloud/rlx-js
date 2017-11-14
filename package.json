@@ -1,0 +1,24 @@
+{
+  "name": "rlx-js",
+  "version": "0.1.0",
+  "description": "provides several helper functions like Some, None, Ok, Err",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joncloud/rlx-js.git"
+  },
+  "keywords": [
+    "result",
+    "option",
+    "rustlang"
+  ],
+  "author": "joncloud",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joncloud/rlx-js/issues"
+  },
+  "homepage": "https://github.com/joncloud/rlx-js#readme"
+}
