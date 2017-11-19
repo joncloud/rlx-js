@@ -3,7 +3,7 @@ const { Ok, Some, None, Err } = require('./index.js');
 // TODO migrate to testing framework.
 const assertEq = (left, right) => {
     if (left.valueOf() != right.valueOf()) {
-        console.log('left (', left, ') <> right (', right, ')');
+        console.log(`left (${left}) <> right (${right})`);
         process.exitCode = 1;
     }
 }
@@ -11,6 +11,8 @@ const assertEq = (left, right) => {
 const assertThrows = (msg, fn) => {
     try {
         fn();
+        console.log(`fn (${fn}) doesn\'t throw error ${msg}`)
+        process.exitCode = 1;
     }
     catch (err) {
         assertEq(err.message, msg);
@@ -27,7 +29,7 @@ assertEq(None().isNone(), true);
 
 // expect
 assertEq(Some('value').expect('the world is ending'), 'value');
-assertThrows('the world is ending', () => Some('value').expect('the world is ending'));
+assertThrows('the world is ending', () => None().expect('the world is ending'));
 
 // unwrap
 assertEq(Some('air').unwrap(), 'air');
