@@ -42,7 +42,7 @@
         mapOrElse(def, fn) { return def(); }
         okOr(error) { return Err(error); }
         okOrElse(fn) { return Err(fn()); }
-        *iter() { yield; }
+        *iter() { }
         and(optionB) { return this; }
         andThen(fn) { return this; }
         or(optionB) { return optionB; }
@@ -99,7 +99,7 @@
         err() { return Some(this.__error); }
         map(fn) { return this; }
         mapErr(fn) { return Err(fn(this.__error)); }
-        *iter() { yield; }
+        *iter() { }
         and(res) { return this; }
         andThen(fn) { return this; }
         or(res) { return res; }

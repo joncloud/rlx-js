@@ -1,21 +1,5 @@
 const { Ok, Some, None, Err } = require('./index.js');
-
-// TODO migrate to testing framework.
-const assertEq = (left, right) => {
-    if (left.valueOf() != right.valueOf()) {
-        console.log('left (', left, ') <> right (', right, ')');
-        process.exitCode = 1;
-    }
-}
-
-const assertThrows = (msg, fn) => {
-    try {
-        fn();
-    }
-    catch (err) {
-        assertEq(err.message, msg);
-    }
-}
+const { assertArrayEq, assertEmpty, assertEq, assertThrows } = require('./test-helpers.js');
 
 // isOk
 assertEq(Ok(-3).isOk(), true);
@@ -42,9 +26,8 @@ assertEq(Ok(2).mapErr(stringify), Ok(2));
 assertEq(Err(13).mapErr(stringify), Err('error code: 13'));
 
 // iter
-for (var x in Ok(7).iter()) {
-    assertEq(x, Some(7));
-}
+assertArrayEq([...Ok(7).iter()], [7]);
+assertEmpty([...Err('nothing!').iter()]);
 
 // and
 assertEq(Ok(2).and(Err('late error')), Err('late error'));
