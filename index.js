@@ -1,4 +1,32 @@
 ((exports) => {
+    class OptionPromiseLike {
+        constructor(promise) {
+            this.__promise = promise;
+        }
+
+        async __use(fn) {
+            const option = await this.__promise;
+            return fn(option);
+        }
+
+        async toSync() { return await this.__promise; }
+
+        unwrap() { return this.__use(option => option.unwrap()); }
+        unwrapOr(def) { return this.__use(option => option.unwrapOr(def)); }
+        unwrapOrElse(fn) { return this.__use(option => option.unwrapOrElse(fn)); }
+        expect(msg) { return this.__use(option => option.expect(msg)); }
+        map(fn) { return this.__use(option => option.map(fn)); }
+        mapOr(def, fn) { return this.__use(option => option.mapOr(def, fn)); }
+        mapOrElse(def, fn) { return this.__use(option => option.mapOrElse(def, fn)); }
+        okOr(error) { throw new Error('test') }
+        okOrElse(fn) { throw new Error('test') }
+        map(fn) { return this.__use(option => option.map(fn)); }
+        and(optionB) { return this.__use(option => option.and(optionB)); }
+        andThen(fn) { return this.__use(option => option.andThen(fn)); }
+        or(optionB) { return this.__use(option => option.or(optionB)); }
+        orElse(fn) { return this.__use(option => option.orElse(fn)); }
+    }
+
     class SomeOption {
         constructor(value) {
             this.__value = value;
@@ -51,13 +79,54 @@
         valueOf() { return 'none' + this.__value.valueOf(); }
     }
 
+    const IsOption = (maybe) => {
+        return maybe instanceof SomeOption
+            || maybe instanceof NoneOption;
+    };
+
+    const ToOption = (value) => {
+        return value === null || value === undefined
+            ? None()
+            : IsOption(value) ? value : Some(value);
+    };
+
     const Some = (value) => {
-        return new SomeOption(value);
+        return value instanceof Promise
+            ? new OptionPromiseLike(value.then(ToOption))
+            : new SomeOption(value);
     }
 
     const noneOption = new NoneOption();
     const None = () => {
         return noneOption;
+    };
+    
+    class ResultPromiseLike {
+        constructor(promise) {
+            this.__promise = promise;
+        }
+
+        async __use(fn) {
+            const result = await this.__promise;
+            return fn(result);
+        }
+
+        async toSync() { return await this.__promise; }
+        
+        ok() { return this.__use(result => result.Ok()); }
+        err() { return this.__use(result => result.err()); }
+        map(fn) { return this.__use(result => result.map(fn)); }
+        mapErr(fn) { return this.__use(result => result.mapErr(fn)); }
+        and(res) { return this.__use(result => result.and(res)); }
+        andThen(fn) { return this.__use(result => result.andThen(fn)); }
+        or(res) { return this.__use(result => result.or(res)); }
+        orElse(fn) { return this.__use(result => result.orElse(fn)); }
+        unwrap() { return this.__use(result => result.unwrap()); }
+        unwrapErr() { return this.__use(result => result.unwrapErr()); }
+        unwrapOr(optionB) { return this.__use(result => result.unwrapOr(optionB)); }
+        unwrapOrElse(fn) { return this.__use(result => result.unwrapOrElse(fn)); }
+        expect(msg) { return this.__use(result => result.expect(msg)); }
+        expectErr(msg) { return this.__use(result => result.expectErr(msg)); }
     }
 
     class OkResult {
@@ -115,13 +184,18 @@
     }
 
     const Ok = (value) => {
-        return new OkResult(value);
+        return value instanceof Promise
+            ? new ResultPromiseLike(value)
+            : new OkResult(value);
     }
 
     const Err = (error) => {
-        return new ErrorResult(error);
+        return error instanceof Promise
+            ? new ResultPromiseLike(error)
+            : new ErrorResult(error);
     }
 
+    exports.ToOption = ToOption;
     exports.Some = Some;
     exports.None = None;
     exports.Err = Err;
