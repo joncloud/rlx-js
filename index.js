@@ -23,8 +23,14 @@
         map(fn) { return this.__use(option => option.map(fn)); }
         mapOr(def, fn) { return this.__use(option => option.mapOr(def, fn)); }
         mapOrElse(def, fn) { return this.__use(option => option.mapOrElse(def, fn)); }
-        okOr(error) { throw new Error('test') }
-        okOrElse(fn) { throw new Error('test') }
+        okOr(error) {
+            const promise = this.__promise.then(option => option.okOr(error));
+            return new ResultPromiseLike(promise);
+        }
+        okOrElse(fn) {
+            const promise = this.__promise.then(option => option.okOrElse(fn));
+            return new ResultPromiseLike(promise);
+        }
         map(fn) { return this.__select(option => option.map(fn)); }
         and(optionB) { return this.__select(option => option.and(optionB)); }
         andThen(fn) { return this.__select(option => option.andThen(fn)); }
@@ -116,16 +122,27 @@
             return fn(result);
         }
 
+        __select(fn) {
+            const promise = this.__promise.then(fn);
+            return new ResultPromiseLike(promise);
+        }
+
         async toSync() { return await this.__promise; }
         
-        ok() { return this.__use(result => result.Ok()); }
-        err() { return this.__use(result => result.err()); }
-        map(fn) { return this.__use(result => result.map(fn)); }
-        mapErr(fn) { return this.__use(result => result.mapErr(fn)); }
-        and(res) { return this.__use(result => result.and(res)); }
-        andThen(fn) { return this.__use(result => result.andThen(fn)); }
-        or(res) { return this.__use(result => result.or(res)); }
-        orElse(fn) { return this.__use(result => result.orElse(fn)); }
+        ok() {
+            const promise = this.__promise.then(result => result.ok());
+            return new OptionPromiseLike(promise);
+        }
+        err() {
+            const promise = this.__promise.then(result => result.err());
+            return new OptionPromiseLike(promise);
+        }
+        map(fn) { return this.__select(result => result.map(fn)); }
+        mapErr(fn) { return this.__select(result => result.mapErr(fn)); }
+        and(res) { return this.__select(result => result.and(res)); }
+        andThen(fn) { return this.__select(result => result.andThen(fn)); }
+        or(res) { return this.__select(result => result.or(res)); }
+        orElse(fn) { return this.__select(result => result.orElse(fn)); }
         unwrap() { return this.__use(result => result.unwrap()); }
         unwrapErr() { return this.__use(result => result.unwrapErr()); }
         unwrapOr(optionB) { return this.__use(result => result.unwrapOr(optionB)); }
