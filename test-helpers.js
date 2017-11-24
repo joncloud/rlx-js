@@ -4,48 +4,52 @@
     };
 
     // TODO migrate to testing framework.
-    const assertEq = (left, right) => {
-        if (left.valueOf() != right.valueOf()) {
-            console.log(`left (${left}) <> right (${right})`);
-            fail();
+    class Assert {
+        arrayEq(left, right) {
+            this.eq(left.length, right.length);
+            for (let index = 0; index < left.length; index++) {
+                this.eq(left[index], right[index]);
+            }
         }
-    };
 
-    const assertThrows = (msg, fn) => {
-        try {
-            fn();
-            console.log(`fn (${fn}) doesn\'t throw error ${msg}`)
-            fail();
+        empty(array) {
+            if (!array) {
+                console.log('array is not defined');
+                fail();
+            }
+            else if (array.length == undefined) {
+                console.log(`array ${array} does not have length`);
+                fail();
+            }
+            else if (array.length) {
+                console.log(`array (${array}) is not empty (${array.length})`);
+                fail();
+            }
         }
-        catch (err) {
-            assertEq(err.message, msg);
-        }
-    };
 
-    const assertArrayEq = (left, right) => {
-        assertEq(left.length, right.length);
-        for (let index = 0; index < left.length; index++) {
-            assertEq(left[0], right[0]);
+        eq(left, right) {
+            if (left.valueOf() != right.valueOf()) {
+                console.log(`left (${left}) <> right (${right})`);
+                fail();
+            }
         }
-    };
 
-    const assertEmpty = (array) => {
-        if (!array) {
-            console.log('array is not defined');
-            fail();
+        throws(msg, fn) {
+            try {
+                fn();
+                console.log(`fn (${fn}) doesn\'t throw error ${msg}`)
+                fail();
+            }
+            catch (err) {
+                this.eq(err.message, msg);
+            }
         }
-        else if (array.length == undefined) {
-            console.log(`array ${array} does not have length`);
-            fail();
-        }
-        else if (array.length) {
-            console.log(`array (${array}) is not empty (${array.length})`);
-            fail();
-        }
-    };
+    }
 
-    exports.assertArrayEq = assertArrayEq;
-    exports.assertEmpty = assertEmpty;
-    exports.assertEq = assertEq;
-    exports.assertThrows = assertThrows;
+    const assert = new Assert();
+    exports.assert = assert;
+    exports.assertArrayEq = (left, right) => assert.arrayEq(left, right);
+    exports.assertEmpty = (array) => assert.empty(array);
+    exports.assertEq = (left, right) => assert.eq(left, right);
+    exports.assertThrows = (msg, fn) => assert.throws(msg, fn);
 })(typeof exports === 'undefined'? this['rlx']={}: exports);
