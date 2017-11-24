@@ -9,6 +9,11 @@
             return fn(option);
         }
 
+        __select(fn) {
+            const promise = this.__promise.then(fn);
+            return new OptionPromiseLike(promise);
+        }
+
         async toSync() { return await this.__promise; }
 
         unwrap() { return this.__use(option => option.unwrap()); }
@@ -20,11 +25,11 @@
         mapOrElse(def, fn) { return this.__use(option => option.mapOrElse(def, fn)); }
         okOr(error) { throw new Error('test') }
         okOrElse(fn) { throw new Error('test') }
-        map(fn) { return this.__use(option => option.map(fn)); }
-        and(optionB) { return this.__use(option => option.and(optionB)); }
-        andThen(fn) { return this.__use(option => option.andThen(fn)); }
-        or(optionB) { return this.__use(option => option.or(optionB)); }
-        orElse(fn) { return this.__use(option => option.orElse(fn)); }
+        map(fn) { return this.__select(option => option.map(fn)); }
+        and(optionB) { return this.__select(option => option.and(optionB)); }
+        andThen(fn) { return this.__select(option => option.andThen(fn)); }
+        or(optionB) { return this.__select(option => option.or(optionB)); }
+        orElse(fn) { return this.__select(option => option.orElse(fn)); }
     }
 
     class SomeOption {

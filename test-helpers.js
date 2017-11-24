@@ -44,6 +44,17 @@
                 this.eq(err.message, msg);
             }
         }
+
+        async throwsAsync(msg, fn) {
+            try {
+                await fn();
+                console.log(`fn (${fn}) doesn\'t throw error ${msg}`)
+                fail();
+            }
+            catch (err) {
+                this.eq(err.message, msg);
+            }
+        }
     }
 
     const assert = new Assert();
