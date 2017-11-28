@@ -56,14 +56,14 @@ exports.fn = async () => {
     // okOr
     assert.eq(Some('foo').okOr(0), Ok('foo'));
     assert.eq(None().okOr(0), Err(0));
-    // TODO
-    // assert.eq(await SomePromise('foo').okOr(0).toSync(), Ok('foo'));
-    // assert.eq(await NonePromise().okOr(0).toSync(), Err(0));
+    assert.eq(await SomePromise('foo').okOr(0).toSync(), Ok('foo'));
+    assert.eq(await NonePromise().okOr(0).toSync(), Err(0));
 
     // okOrElse
     assert.eq(Some('foo').okOrElse(() => 0), Ok('foo'));
     assert.eq(None().okOrElse(() => 0), Err(0));
-    // TODO
+    assert.eq(await SomePromise('foo').okOrElse(() => 0).toSync(), Ok('foo'));
+    assert.eq(await NonePromise().okOrElse(() => 0).toSync(), Err(0));
 
     // iter
     assert.arrayEq([...Some(4).iter()], [4]);
