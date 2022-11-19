@@ -16,7 +16,10 @@
   "keywords": [
     "result",
     "option",
-    "rustlang"
+    "rustlang",
+    "promise",
+    "functional",
+    "monad"
   ],
   "author": "joncloud",
   "licenses": [
