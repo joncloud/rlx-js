@@ -21,7 +21,7 @@ Or update `package.json` to include a dependency on
 
 ```json
 "dependencies": {
-  "rlx-js": "0.1.0"
+  "rlx-js": "0.2.0"
 }
 ```
 
