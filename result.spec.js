@@ -55,12 +55,13 @@ exports.fn = async () => {
   );
 
   /**
-   * @param {AsyncIterator<T>} iterator
+   * @template T
+   * @param {AsyncIterable<T>} iterable
    * @returns {Promise<T[]>}
    */
-  const toArray = async (iterator) => {
+  const toArray = async (iterable) => {
     const array = [];
-    for await (const item of iterator) {
+    for await (const item of iterable) {
       array.push(item);
     }
     return array;
@@ -148,4 +149,14 @@ exports.fn = async () => {
   // expectErr
   assert.throws('Testing expect_err: 10', () => Ok(10).expectErr('Testing expect_err'));
   assert.throwsAsync('Testing expect_err: 10', () => OkPromise(10).expectErr('Testing expect_err'));
+
+  // match
+  assert.eq(Ok(123).match({ ok: x => x, err: x => x.length }), 123);
+  assert.eq(await Ok(123).match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 123);
+  assert.eq(await OkPromise(123).match({ ok: x => x, err: x => x.length }), 123);
+  assert.eq(await OkPromise(123).match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 123);
+  assert.eq(Err('foo').match({ ok: x => x, err: x => x.length }), 3);
+  assert.eq(await Err('foo').match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 3);
+  assert.eq(await ErrPromise('foo').match({ ok: x => x, err: x => x.length }), 3);
+  assert.eq(await ErrPromise('foo').match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 3);
 };

@@ -78,12 +78,13 @@ exports.fn = async () => {
   assert.eq(await NonePromise().okOrElse(() => 0), Err(0));
 
   /**
-   * @param {AsyncIterator<T>} iterator
+   * @template T
+   * @param {AsyncIterable<T>} iterable
    * @returns {Promise<T[]>}
    */
-  const toArray = async (iterator) => {
+  const toArray = async (iterable) => {
     const array = [];
-    for await (const item of iterator) {
+    for await (const item of iterable) {
       array.push(item);
     }
     return array;
@@ -141,4 +142,14 @@ exports.fn = async () => {
   assert.eq(await NonePromise().orElse(vikingsAway), Some('vikings'));
   assert.eq(await NonePromise().orElse(nobody), None());
   assert.eq(await NonePromise().orElse(nobodyAway).orElse(nobodyAway).orElse(vikingsAway), Some('vikings'));
+
+  // match
+  assert.eq(Some('foo').match({ some: x => x.length, none: () => 0 }), 3);
+  assert.eq(await Some('foo').match({ some: x => Promise.resolve(x.length), none: () => Promise.resolve(0) }), 3);
+  assert.eq(await SomePromise('foo').match({ some: x => x.length, none: () => 0 }), 3);
+  assert.eq(await SomePromise('foo').match({ some: x => Promise.resolve(x.length), none: () => Promise.resolve(0) }), 3);
+  assert.eq(None().match({ some: x => x.length, none: () => 0 }), 0);
+  assert.eq(await None().match({ some: x => Promise.resolve(x.length), none: () => Promise.resolve(0) }), 0);
+  assert.eq(await NonePromise().match({ some: x => x.length, none: () => 0 }), 0);
+  assert.eq(await NonePromise().match({ some: x => Promise.resolve(x.length), none: () => Promise.resolve(0) }), 0);
 };

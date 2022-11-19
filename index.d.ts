@@ -1,3 +1,7 @@
+export type OptionMatch<T> = {
+  match<U>(opts: { some: (val: T) => U, none: () => U }): U;
+};
+
 export type NoneOption<T> = {
   isSome(): false;
   isNone(): true;
@@ -34,7 +38,7 @@ export type NoneOption<T> = {
   orElse(fn: () => NoneOption<T>): NoneOption<T>;
   orElse(fn: () => Option<T>): Option<T>;
   valueOf(): 'none{}';
-};
+} & OptionMatch<T>;
 
 export function None<T>(): NoneOption<T>;
 
@@ -77,7 +81,7 @@ export type SomeOption<T> = {
   orElse(fn: () => NoneOption<T>): SomeOption<T>;
   orElse(fn: () => Option<T>): SomeOption<T>;
   valueOf(): string;
-};
+} & OptionMatch<T>;
 
 export function Some<T>(value: T): SomeOption<T>;
 export function Some<T>(value: Promise<T>): PromiseOption<T>;
@@ -116,6 +120,8 @@ export type PromiseOption<T> = {
   orElse(fn: () => SomeOption<T>): PromiseOption<T>;
   orElse(fn: () => NoneOption<T>): PromiseOption<T>;
   orElse(fn: () => Option<T>): PromiseOption<T>;
+  match<U>(opts: { some: (val: T) => Promise<U>, none: () => Promise<U> }): Promise<U>;
+  match<U>(opts: { some: (val: T) => U, none: () => U }): Promise<U>;
 } & PromiseLike<Option<T>>;
 
 export function ToOption<T>(value: null): NoneOption<T>;
@@ -127,6 +133,10 @@ export function ToOption<T>(value: SomeOption<T>): SomeOption<T>;
 export function ToOption<T>(value: NoneOption<T>): NoneOption<T>;
 export function ToOption<T>(value: Option<T>): Option<T>;
 export function ToOption<T>(value: T): SomeOption<T>;
+
+export type ResultMatch<T, E> = {
+  match<U>(opts: { ok: (val: T) => U, err: (err: E) => U }): U;
+};
 
 export type OkResult<T, E = never> = {
   isOk(): true;
@@ -166,7 +176,7 @@ export type OkResult<T, E = never> = {
   expect(msg: string): T;
   expectErr(msg: string): never;
   valueOf(): string;
-};
+} & ResultMatch<T, E>;
 
 export type ErrResult<T, E> = {
   isOk(): false;
@@ -206,7 +216,8 @@ export type ErrResult<T, E> = {
   expect(msg: string): never;
   expectErr(msg: string): E;
   valueOf(): string;
-};
+} & ResultMatch<T, E>;
+
 export type Result<T, E> = OkResult<T, E> | ErrResult<T, E>;
 
 export type PromiseResult<T, E> = {
@@ -236,6 +247,8 @@ export type PromiseResult<T, E> = {
   unwrapOrElse(fn: (err: E) => T): Promise<T>;
   expect(msg: string): Promise<T>;
   expectErr(msg: string): Promise<E>;
+  match<U>(opts: { ok: (val: T) => Promise<U>, err: (err: E) => Promise<U> }): Promise<U>;
+  match<U>(opts: { ok: (val: T) => U, err: (err: E) => U }): Promise<U>;
 } & PromiseLike<Result<T, E>>;
 
 export function Ok<T, E = never>(value: Promise<T>): PromiseResult<T, E>;

@@ -43,6 +43,7 @@
     andThen(fn) { return this.__then(option => option.andThen(fn)); }
     or(optionB) { return this.__then(option => option.or(optionB)); }
     orElse(fn) { return this.__then(option => option.orElse(fn)); }
+    match(opts) { return this.__then(option => option.match(opts)); }
   }
 
   class SomeOption {
@@ -68,6 +69,7 @@
     andThen(fn) { return fn(this.__value); }
     or() { return this; }
     orElse() { return this; }
+    match({ some }) { return some(this.__value); }
 
     valueOf() { return 'some' + this.__value.valueOf(); }
   }
@@ -90,6 +92,7 @@
     andThen() { return this; }
     or(optionB) { return optionB; }
     orElse(fn) { return fn(); }
+    match({ none }) { return none(this.__value); }
 
     valueOf() { return 'none' + noneValue.valueOf(); }
   }
@@ -160,6 +163,7 @@
     unwrapOrElse(fn) { return this.__await(result => result.unwrapOrElse(fn)); }
     expect(msg) { return this.__await(result => result.expect(msg)); }
     expectErr(msg) { return this.__await(result => result.expectErr(msg)); }
+    match(opts) { return this.__await(result => result.match(opts)); }
   }
 
   class OkResult {
@@ -186,6 +190,7 @@
     unwrapOrElse() { return this.__value; }
     expect() { return this.__value; }
     expectErr(msg) { throw new Error(`${msg}: ${this.__value}`); }
+    match({ ok }) { return ok(this.__value); }
 
     valueOf() { return 'ok' + this.__value.valueOf(); }
   }
@@ -212,6 +217,7 @@
     unwrapOrElse(fn) { return fn(this.__error); }
     expect(msg) { throw new Error(`${msg}: ${this.__error}`); }
     expectErr() { return this.__error; }
+    match({ err }) { return err(this.__error); }
 
     valueOf() { return 'error' + this.__error.valueOf(); }
   }
