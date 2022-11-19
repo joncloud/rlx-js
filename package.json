@@ -5,7 +5,9 @@
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "test": "node ./test.js"
+    "test:lint": "npx eslint *.js",
+    "test:run-tests": "node ./test.js",
+    "test": "npm run test:lint && npm run test:run-tests"
   },
   "repository": {
     "type": "git",
@@ -26,5 +28,12 @@
   "bugs": {
     "url": "https://github.com/joncloud/rlx-js/issues"
   },
-  "homepage": "https://github.com/joncloud/rlx-js#readme"
+  "homepage": "https://github.com/joncloud/rlx-js#readme",
+  "devDependencies": {
+    "eslint": "^8.28.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1"
+  }
 }

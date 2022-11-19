@@ -1,6 +1,7 @@
 language: node_js
 node_js: node
-dist: trusty
+dist: jammy
 script:
+ - npm ci
  - npm test
  - npm pack
