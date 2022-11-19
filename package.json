@@ -1,8 +1,9 @@
 {
   "name": "rlx-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "provides several helper functions like Some, None, Ok, Err",
   "main": "index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "node ./test.js"
   },

@@ -1,3 +1,5 @@
+'use strict';
+
 const optionSpec = require('./option.spec.js').fn;
 const resultSpec = require('./result.spec.js').fn;
 

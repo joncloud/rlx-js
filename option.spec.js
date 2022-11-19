@@ -1,7 +1,13 @@
+'use strict';
+
 const { Ok, Some, None, Err, ToOption } = require('./index.js');
 const assert = require('./test-helpers.js').assert;
 
 exports.fn = async () => {
+    /**
+     * @template T
+     * @param {T} value
+     */
     const SomePromise = (value) => ToOption(Promise.resolve(Some(value)));
     const NonePromise = () => ToOption(Promise.resolve(None()));
 
@@ -18,7 +24,7 @@ exports.fn = async () => {
     assert.eq(await SomePromise('value').expect('the world is ending'), 'value');
     assert.throws('the world is ending', () => None().expect('the world is ending'));
     assert.throwsAsync('the world is ending', () => NonePromise().expect('the world is ending'));
-    
+
     // unwrap
     assert.eq(Some('air').unwrap(), 'air');
     assert.throws('Option does not contain value', () => None().unwrap());
@@ -39,7 +45,13 @@ exports.fn = async () => {
 
     // map
     assert.eq(Some('Hello, World!').map(s => s.length), Some(13));
-    assert.eq(await SomePromise('Hello, World!').map(s => s.length).toSync(), Some(13));
+    assert.eq(await SomePromise('Hello, World!').map(s => s.length), Some(13));
+    assert.eq(
+        await SomePromise('Hello, World!')
+            .map(s => Promise.resolve(s.length))
+            .map(len => Promise.resolve(len ** 2)),
+        Some(169)
+    );
 
     // mapOr
     assert.eq(Some('foo').mapOr(42, v => v.length), 3);
@@ -56,28 +68,42 @@ exports.fn = async () => {
     // okOr
     assert.eq(Some('foo').okOr(0), Ok('foo'));
     assert.eq(None().okOr(0), Err(0));
-    assert.eq(await SomePromise('foo').okOr(0).toSync(), Ok('foo'));
-    assert.eq(await NonePromise().okOr(0).toSync(), Err(0));
+    assert.eq(await SomePromise('foo').okOr(0), Ok('foo'));
+    assert.eq(await NonePromise().okOr(0), Err(0));
 
     // okOrElse
     assert.eq(Some('foo').okOrElse(() => 0), Ok('foo'));
     assert.eq(None().okOrElse(() => 0), Err(0));
-    assert.eq(await SomePromise('foo').okOrElse(() => 0).toSync(), Ok('foo'));
-    assert.eq(await NonePromise().okOrElse(() => 0).toSync(), Err(0));
+    assert.eq(await SomePromise('foo').okOrElse(() => 0), Ok('foo'));
+    assert.eq(await NonePromise().okOrElse(() => 0), Err(0));
+
+    /**
+     * @param {AsyncIterator<T>} iterator
+     * @returns {Promise<T[]>}
+     */
+    const toArray = async (iterator) => {
+        const array = [];
+        for await (const item of iterator) {
+            array.push(item);
+        }
+        return array;
+    };
 
     // iter
     assert.arrayEq([...Some(4).iter()], [4]);
+    assert.arrayEq(await toArray(SomePromise(4).iter()), [4]);
     assert.empty([...None().iter()]);
+    assert.empty(await toArray(None().iter()));
 
     // and
     assert.eq(Some(2).and(None()), None());
     assert.eq(None().and(Some('foo')), None());
     assert.eq(Some(2).and(Some('foo')), Some('foo'));
     assert.eq(None().and(None()), None());
-    assert.eq(await SomePromise(2).and(None()).toSync(), None());
-    assert.eq(await NonePromise().and(Some('foo')).toSync(), None());
-    assert.eq(await SomePromise(2).and(Some('foo')).toSync(), Some('foo'));
-    assert.eq(await NonePromise().and(None()).toSync(), None());
+    assert.eq(await SomePromise(2).and(None()), None());
+    assert.eq(await NonePromise().and(Some('foo')), None());
+    assert.eq(await SomePromise(2).and(Some('foo')), Some('foo'));
+    assert.eq(await NonePromise().and(None()), None());
 
     // andThen
     const sq = (x) => Some(x * x);
@@ -86,28 +112,33 @@ exports.fn = async () => {
     assert.eq(Some(2).andThen(sq).andThen(sq), Some(16));
     assert.eq(Some(2).andThen(nope).andThen(sq), None());
     assert.eq(None().andThen(sq).andThen(sq), None());
-    assert.eq(await SomePromise(2).andThen(sq).andThen(sq).toSync(), Some(16));
-    assert.eq(await SomePromise(2).andThen(nope).andThen(sq).toSync(), None());
-    assert.eq(await NonePromise().andThen(sq).andThen(sq).toSync(), None());
+    assert.eq(await SomePromise(2).andThen(sq).andThen(sq), Some(16));
+    assert.eq(await SomePromise(2).andThen(nope).andThen(sq), None());
+    assert.eq(await NonePromise().andThen(sq).andThen(sq), None());
 
     // or
     assert.eq(Some(2).or(None()), Some(2));
     assert.eq(None().or(Some(2)), Some(2));
     assert.eq(Some(2).or(Some(100)), Some(2));
     assert.eq(None().or(None()), None());
-    assert.eq(await SomePromise(2).or(None()).toSync(), Some(2));
-    assert.eq(await NonePromise().or(Some(2)).toSync(), Some(2));
-    assert.eq(await SomePromise(2).or(Some(100)).toSync(), Some(2));
-    assert.eq(await NonePromise().or(None()).toSync(), None());
+    assert.eq(await SomePromise(2).or(None()), Some(2));
+    assert.eq(await NonePromise().or(Some(2)), Some(2));
+    assert.eq(await SomePromise(2).or(Some(100)), Some(2));
+    assert.eq(await NonePromise().or(None()), None());
 
     // orElse
     const nobody = () => None();
+    const nobodyAway = () => NonePromise();
     const vikings = () => Some('vikings');
+    const vikingsAway = () => SomePromise('vikings');
 
     assert.eq(Some('barbarians').orElse(vikings), Some('barbarians'));
     assert.eq(None().orElse(vikings), Some('vikings'));
     assert.eq(None().orElse(nobody), None());
-    assert.eq(await SomePromise('barbarians').orElse(vikings).toSync(), Some('barbarians'));
-    assert.eq(await NonePromise().orElse(vikings).toSync(), Some('vikings'));
-    assert.eq(await NonePromise().orElse(nobody).toSync(), None());
+    assert.eq(await SomePromise('barbarians').orElse(vikings), Some('barbarians'));
+    assert.eq(await SomePromise('barbarians').orElse(vikingsAway), Some('barbarians'));
+    assert.eq(await NonePromise().orElse(vikings), Some('vikings'));
+    assert.eq(await NonePromise().orElse(vikingsAway), Some('vikings'));
+    assert.eq(await NonePromise().orElse(nobody), None());
+    assert.eq(await NonePromise().orElse(nobodyAway).orElse(nobodyAway).orElse(vikingsAway), Some('vikings'));
 };
