@@ -1,6 +1,5 @@
 # RlxJS
 
-[![Travis](https://img.shields.io/travis/joncloud/rlx-js.svg)](https://travis-ci.org/joncloud/rlx-js/)
 [![npm](https://img.shields.io/npm/v/rlx-js.svg)](https://www.npmjs.com/package/rlx-js)
 
 ## Description
