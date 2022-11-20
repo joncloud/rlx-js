@@ -59,6 +59,3 @@ typings/
 
 # VS Code
 .vscode/
-
-# Ignored for packages
-package-lock.json
