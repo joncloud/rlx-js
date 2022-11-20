@@ -25,4 +25,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: 'npm ci'
-    - run: 'npm test'
+    # eslint doesn't support Node.js 10
+    - if: ${{ matrix.node-version == '10.x' }}
+      run: 'npm test:run-tests'
+    - if: ${{ matrix.node-version != '10.x' }}
+      run: 'npm test'
