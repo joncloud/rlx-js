@@ -94,7 +94,7 @@ exports.fn = async () => {
   assert.arrayEq([...Some(4).iter()], [4]);
   assert.arrayEq(await toArray(SomePromise(4).iter()), [4]);
   assert.empty([...None().iter()]);
-  assert.empty(await toArray(None().iter()));
+  assert.empty(await toArray(NonePromise().iter()));
 
   // and
   assert.eq(Some(2).and(None()), None());

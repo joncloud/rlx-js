@@ -97,11 +97,11 @@ exports.fn = async () => {
   assert.eq(await ErrPromise(3).andThen(sq).andThen(sq), Err(3));
 
   // or
-  assert.eq(Ok(2).or('late error'), Ok(2));
+  assert.eq(Ok(2).or(Err('late error')), Ok(2));
   assert.eq(Err('early error').or(Ok(2)), Ok(2));
   assert.eq(Err('not a 2').or(Err('late error')), Err('late error'));
   assert.eq(Ok(2).or(Ok(100)), Ok(2));
-  assert.eq(await OkPromise(2).or('late error'), Ok(2));
+  assert.eq(await OkPromise(2).or(Err('late error')), Ok(2));
   assert.eq(await ErrPromise('early error').or(Ok(2)), Ok(2));
   assert.eq(await ErrPromise('not a 2').or(Err('late error')), Err('late error'));
   assert.eq(await OkPromise(2).or(Ok(100)), Ok(2));
