@@ -259,7 +259,7 @@ export type PromiseResult<T, E> = {
   match<U>(opts: { ok: (val: T) => U, err: (err: E) => U }): Promise<U>;
 } & PromiseLike<Result<T, E>>;
 
-export function Ok<T, E = never>(value: Promise<T>): PromiseResult<T, E>;
-export function Ok<T, E = never>(value: T): OkResult<T, E>;
-export function Err<T, E>(error: Promise<E>): PromiseResult<T, E>;
-export function Err<T, E>(error: E): ErrResult<T, E>;
+export function Ok<T>(value: Promise<T>): PromiseResult<T, never>;
+export function Ok<T>(value: T): OkResult<T, never>;
+export function Err<E>(error: Promise<E>): PromiseResult<never, E>;
+export function Err<E>(error: E): ErrResult<never, E>;
