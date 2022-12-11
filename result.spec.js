@@ -1,6 +1,13 @@
 'use strict';
 
-const { Ok, Some, None, Err, ToOption } = require('./index.js');
+const {
+  Ok,
+  Some,
+  None,
+  Err,
+  ToOption,
+  FlattenResult,
+} = require('./index.js');
 const assert = require('./test-helpers.js').assert;
 
 exports.fn = async () => {
@@ -159,4 +166,16 @@ exports.fn = async () => {
   assert.eq(await Err('foo').match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 3);
   assert.eq(await ErrPromise('foo').match({ ok: x => x, err: x => x.length }), 3);
   assert.eq(await ErrPromise('foo').match({ ok: x => Promise.resolve(x), err: x => Promise.resolve(x.length) }), 3);
+
+  // FlattenResult
+  assert.eq(FlattenResult(Promise.resolve(Ok(123))).constructor.name, 'PromiseResult');
+  assert.eq(await FlattenResult(Promise.resolve(Ok(123))), Ok(123));
+  assert.eq(FlattenResult(Promise.resolve(Err('foo'))).constructor.name, 'PromiseResult');
+  assert.eq(await FlattenResult(Promise.resolve(Err('foo'))), Err('foo'));
+  assert.eq(await FlattenResult(OkPromise(123)), Ok(123));
+  assert.eq(await FlattenResult(ErrPromise('foo')), Err('foo'));
+  assert.eq(FlattenResult(Ok(123)), Ok(123));
+  assert.eq(FlattenResult(Err('foo')), Err('foo'));
+  assert.throwsAsync('Expected promise to be Promise<Result> or Result', () => FlattenResult(Promise.resolve(123)));
+  assert.throwsAsync('Expected promise to be Promise<Result> or Result', () => FlattenResult(123));
 };

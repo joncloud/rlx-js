@@ -24,21 +24,56 @@ Or update `package.json` to include a dependency on
 
 ```json
 "dependencies": {
-  "rlx-js": "0.2.0"
+  "rlx-js": "0.2.x"
 }
 ```
 
-## Usage
+## Samples
 
-Sample echo program:
+### Sample echo program
 
 ```javascript
-const { Some, None } = require('rlx-js');
+import { Some, None } from 'rlx-js';
 
 const getArg = () => process.argv.length > 2 ? Some(process.argv[2]) : None();
 const message = getArg().mapOrElse(() => "Missing Argument", msg => `Echo: ${msg}`);
 console.log(message);
 ```
+
+### Promise helpers
+
+```javascript
+import { Ok, Err, FlattenResult } from 'rlx-js';
+
+const fetchData = async (url) => {
+  const res = await fetch(url);
+  if (res.ok) {
+    return Ok(res);
+  }
+  return Err(`Invalid status ${res.status}`);
+};
+
+const validateContentType = (res) => {
+  const contentType = res.headers.get('content-type');
+  if (contentType.includes('application/json')) {
+    return Ok(res);
+  }
+  return Err(`Invalid content type ${contentType}`);
+};
+
+const loadText = async (res) => {
+  const text = await res.text();
+  return text;
+};
+
+const text = await FlattenResult(fetchData('...'))
+  .andThen(validateContentType)
+  .map(loadText)
+  .unwrapOrElse(err => err);
+console.log(text);
+```
+
+### Additional usage
 
 For additional usage see [Option][] and [Result][] tests.
 

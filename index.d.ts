@@ -263,3 +263,8 @@ export function Ok<T>(value: Promise<T>): PromiseResult<T, never>;
 export function Ok<T>(value: T): OkResult<T, never>;
 export function Err<E>(error: Promise<E>): PromiseResult<never, E>;
 export function Err<E>(error: E): ErrResult<never, E>;
+export function FlattenResult<T, E>(promise: Promise<Result<T, E>>): PromiseResult<T, E>;
+export function FlattenResult<T, E>(promise: PromiseResult<T, E>): PromiseResult<T, E>;
+export function FlattenResult<T, E>(promise: OkResult<T, E>): OkResult<T, E>;
+export function FlattenResult<T, E>(promise: ErrResult<T, E>): ErrResult<T, E>;
+export function FlattenResult<T, E>(promise: Result<T, E>): Result<T, E>;
