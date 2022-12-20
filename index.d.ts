@@ -239,9 +239,9 @@ export type PromiseResult<T, E> = {
   and<U>(res: Promise<Result<U, E>>): PromiseResult<U, E>;
   and<U>(res: PromiseResult<U, E>): PromiseResult<U, E>;
   and<U>(res: Result<U, E>): PromiseResult<U, E>;
-  andThen<U>(fn: (val: T) => Promise<Result<U, E>>): ErrResult<U, E>;
-  andThen<U>(fn: (val: T) => PromiseResult<U, E>): ErrResult<U, E>;
-  andThen<U>(fn: (val: T) => Result<U, E>): ErrResult<U, E>;
+  andThen<U>(fn: (val: T) => Promise<Result<U, E>>): PromiseResult<U, E>;
+  andThen<U>(fn: (val: T) => PromiseResult<U, E>): PromiseResult<U, E>;
+  andThen<U>(fn: (val: T) => Result<U, E>): PromiseResult<U, E>;
   or(res: Promise<Result<T, E>>): PromiseResult<T, E>;
   or(res: PromiseResult<T, E>): PromiseResult<T, E>;
   or(res: Result<T, E>): PromiseResult<T, E>;
