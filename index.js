@@ -248,6 +248,24 @@
       : new ErrorResult(error);
   };
 
+  const FlattenResult = (promise) => {
+    if (promise instanceof Promise) {
+      return new PromiseResult(
+        promise.then(result => {
+          if (!IsResult(result)) {
+            throw new Error ('Expected promise to be Promise<Result> or Result');
+          }
+          return result;
+        })
+      );
+    }
+    if (IsResult(promise)) {
+      return promise;
+    }
+
+    throw new Error('Expected promise to be Promise<Result> or Result');
+  };
+
   exports.ToOption = ToOption;
   exports.Some = Some;
   exports.None = None;
@@ -255,4 +273,5 @@
   exports.ToErr = ToErr;
   exports.Err = Err;
   exports.Ok = Ok;
+  exports.FlattenResult = FlattenResult;
 })(typeof exports === 'undefined' ? this['rlx'] = {} : exports);

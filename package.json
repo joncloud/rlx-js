@@ -1,6 +1,6 @@
 {
   "name": "rlx-js",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "provides error handling functions inspired by rust like Some, None, Ok, Err",
   "main": "index.js",
   "typings": "index.d.ts",
